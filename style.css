@@ -1,0 +1,52 @@
+:root{--bg:#101010;--panel:#1b1b1b;--gold:#d9ad55;--text:#f5f5f5;--muted:#aaa;--line:#303030}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;line-height:1.5}
+button,input,textarea,select{font:inherit}
+button{border:0;border-radius:11px;padding:12px 16px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+.primary{background:var(--gold);color:#17120a}
+.secondary{background:#292929;color:white;border:1px solid #383838}
+.danger{background:#512727;color:#ffdada}
+.small{padding:8px 10px;font-size:13px}
+.hidden{display:none!important}
+header{height:70px;padding:0 5%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);position:sticky;top:0;background:#101010;z-index:3}
+.brand{font-weight:900;font-size:22px;letter-spacing:2px;cursor:pointer}
+.brand span,.gold,.price{color:var(--gold)}
+.wrap{width:min(1050px,92%);margin:auto}
+.hero{text-align:center;padding:70px 10px}
+.eyebrow,.muted,.sub{color:var(--muted)}
+.eyebrow{font-size:13px;letter-spacing:1px}
+.hero h1{font-size:clamp(35px,7vw,55px);line-height:1.12}
+.hero p{font-size:18px;color:#bbb;max-width:650px;margin:20px auto 28px}
+.actions,.tabs{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+section{padding:35px 0 50px}
+.section-title{text-align:center;font-size:29px;margin-bottom:5px}
+.sub{text-align:center;margin-bottom:28px}
+.steps,.stats,.store-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
+.store-grid{margin-top:18px}
+.panel,.step{background:var(--panel);border:1px solid #2b2b2b;border-radius:17px;padding:20px}
+.step h3{color:var(--gold)}
+.formbox{width:min(470px,92%);margin:35px auto;background:var(--panel);border:1px solid var(--line);padding:23px;border-radius:17px}
+.field{margin:13px 0}
+.field label{display:block;font-size:14px;color:#ccc;margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;background:#101010;border:1px solid #414141;color:white;padding:12px;border-radius:9px}
+.field input[type=file]{padding:10px}
+.photo-preview{display:block;width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin-top:10px}
+.notice{padding:12px;border:1px solid #6a542e;background:#2a2215;color:#f2d9a6;border-radius:10px;font-size:13px;margin-top:15px}
+.dashboard{padding:28px 0 55px}
+.tabs{justify-content:flex-start;margin:20px 0}
+.tabs .active{background:var(--gold);color:#17120a}
+.product-list{display:grid;gap:12px}
+.product{display:grid;grid-template-columns:75px 1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid #333;border-radius:14px;padding:12px}
+.product img{width:75px;height:75px;object-fit:cover;border-radius:9px}
+.product h3,.product p{margin:0}
+.product p{color:var(--muted);font-size:14px}
+.public-product{padding:0;overflow:hidden}
+.public-product img{width:100%;height:175px;object-fit:cover;background:#292929}
+.inside{padding:14px}
+.price{font-weight:bold;font-size:18px}
+.store-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.link-box{word-break:break-all}
+footer{text-align:center;color:#777;border-top:1px solid var(--line);padding:22px;font-size:13px}
+a{color:var(--gold)}
+@media(max-width:520px){header{padding:0 4%}.product{grid-template-columns:62px 1fr}.product img{width:62px;height:62px}.product .tools{grid-column:2}}
