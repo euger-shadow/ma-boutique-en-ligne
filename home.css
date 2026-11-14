@@ -1,0 +1,15 @@
+.benefits{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.benefit{position:relative;overflow:hidden}
+.benefit .icon{font-size:28px;line-height:1;margin-bottom:10px}
+.benefit h3{margin:0 0 6px;font-size:17px}
+.benefit p{margin:0;font-size:14px}
+
+#featuredStores{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.feat{display:flex;flex-direction:column;gap:6px}
+.feat h3,.feat p{margin:0}
+.feat button{margin-top:10px;align-self:flex-start}
+.more-stores{text-align:center;margin-top:20px}
+
+.cta-band{text-align:center;background:radial-gradient(circle at 50% 0%,rgba(217,173,85,.18),transparent 70%),#151515;border:1px solid rgba(217,173,85,.3);border-radius:22px;padding:40px 20px}
+.cta-band h2{margin:0 0 10px;font-size:27px;line-height:1.2}
+.cta-band p{margin:0 auto 24px;max-width:480px;color:#c4c4c4}
