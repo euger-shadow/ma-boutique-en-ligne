@@ -44,6 +44,10 @@ section{padding:30px 0 44px}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold);outline:none}
 .field input[type=file]{padding:10px}
 .photo-preview{display:block;width:100%;max-height:240px;object-fit:cover;border-radius:12px;margin-top:10px}
+.photo-previews{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:10px}
+.photo-previews .pv{position:relative}
+.photo-previews img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px}
+.photo-previews button{position:absolute;top:4px;right:4px;padding:2px 8px;font-size:13px;border-radius:99px;background:rgba(0,0,0,.75);color:#fff}
 .notice{padding:12px;border:1px solid #6a542e;background:#2a2215;color:#f2d9a6;border-radius:12px;font-size:13px;margin-top:16px}
 
 .dashboard{padding:26px 0 50px}
@@ -56,10 +60,15 @@ section{padding:30px 0 44px}
 .product h3,.product p{margin:0}
 .product p{color:var(--muted);font-size:14px}
 
-.store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:18px}
+.store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin-top:18px}
 .public-product{padding:0;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,border-color .2s}
 .public-product:hover{border-color:rgba(217,173,85,.5);transform:translateY(-2px)}
 .public-product img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;background:#262626}
+.gallery-wrap{position:relative}
+.gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.gallery::-webkit-scrollbar{display:none}
+.gallery img{flex:0 0 100%;scroll-snap-align:center}
+.photo-count{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.65);color:#fff;font-size:12px;padding:3px 9px;border-radius:99px;pointer-events:none}
 .inside{padding:12px 12px 14px;display:flex;flex-direction:column;gap:4px;flex:1}
 .inside h3{margin:0;font-size:15px;line-height:1.25}
 .inside p{margin:0;font-size:13px}
@@ -83,4 +92,4 @@ footer{text-align:center;color:#7a7a7a;border-top:1px solid var(--line);padding:
   .product{grid-template-columns:62px 1fr}
   .product img{width:62px;height:62px}
   .product .tools{grid-column:2}
-                                           }
+}
