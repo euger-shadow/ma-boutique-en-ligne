@@ -1,12 +1,27 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010"><meta name="description" content="Velno : crée ta boutique de mode et accessoires en ligne et reçois les commandes sur WhatsApp."><link rel="manifest" href="manifest.json"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><title>Velno - Boutique en ligne</title>
 <link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="home.css?v=1">
 </head><body>
 <header><div class="brand" onclick="goHome()"><span>VELNO</span></div><div id="headerActions"><button class="secondary" onclick="openSpace()">Mon espace</button></div></header>
 
-<main id="homePage"><div class="hero wrap"><div class="eyebrow">MODE ET ACCESSOIRES · BOUTIQUE EN LIGNE</div><h1>Ta mode, ta boutique,<br><span class="gold">tes commandes.</span></h1><p>Velno t'aide à présenter tes vêtements, chaussures et accessoires en ligne, et à recevoir les commandes directement sur WhatsApp.</p><div class="actions"><button class="primary" onclick="startSelling()">Créer ma boutique</button><button class="secondary" onclick="showPublicStores()">Découvrir les boutiques</button></div></div>
+<main id="homePage">
+<div class="hero wrap"><div class="eyebrow">MODE ET ACCESSOIRES · BOUTIQUE EN LIGNE</div><h1>Ta mode, ta boutique,<br><span class="gold">tes commandes.</span></h1><p>Velno t'aide à présenter tes vêtements, chaussures et accessoires en ligne, et à recevoir les commandes directement sur WhatsApp.</p><div class="actions"><button class="primary" onclick="startSelling()">Créer ma boutique</button><button class="secondary" onclick="showPublicStores()">Découvrir les boutiques</button></div></div>
+
 <section class="wrap"><h2 class="section-title">Comment ça marche ?</h2><p class="sub">Trois étapes pour commencer à vendre.</p><div class="steps"><article class="step"><h3>01. Inscris-toi</h3><p class="muted">Crée ton espace vendeur.</p></article><article class="step"><h3>02. Ajoute tes articles</h3><p class="muted">Présente tes articles avec photos et prix.</p></article><article class="step"><h3>03. Reçois tes commandes</h3><p class="muted">Tes clients te contactent sur WhatsApp.</p></article></div></section>
-<section class="wrap"><h2 class="section-title">Une solution simple</h2><p class="sub">Gère ta boutique de mode depuis ton téléphone.</p><div class="panel"><p>✓ Une boutique accessible par un simple lien</p><p>✓ Tes articles, photos et prix au même endroit</p><p>✓ Un bouton WhatsApp pour recevoir les commandes</p></div></section></main>
+
+<section class="wrap"><h2 class="section-title">Pourquoi Velno ?</h2><p class="sub">Tout ce qu'il faut pour vendre ta mode en ligne.</p>
+<div class="benefits">
+<article class="panel benefit"><div class="icon">📱</div><h3>Tout depuis ton téléphone</h3><p class="muted">Crée et partage ta boutique sans ordinateur.</p></article>
+<article class="panel benefit"><div class="icon">💬</div><h3>Commandes sur WhatsApp</h3><p class="muted">Tes clients te contactent directement, avec l'article qu'ils ont choisi.</p></article>
+<article class="panel benefit"><div class="icon">📸</div><h3>Plusieurs photos par article</h3><p class="muted">Montre chaque modèle sous tous ses angles, jusqu'à 5 photos.</p></article>
+<article class="panel benefit"><div class="icon">🔗</div><h3>Un lien à partager</h3><p class="muted">Chaque boutique a son adresse, à envoyer sur WhatsApp, Facebook ou Instagram.</p></article>
+</div></section>
+
+<section class="wrap hidden" id="featuredSection"><h2 class="section-title">Boutiques à découvrir</h2><p class="sub">Les dernières boutiques créées sur Velno.</p><div id="featuredStores"></div><div class="more-stores"><button class="secondary" onclick="showPublicStores()">Voir toutes les boutiques</button></div></section>
+
+<section class="wrap"><div class="cta-band"><h2>Prêt à vendre ta mode ?</h2><p>Crée ta boutique et partage ton premier lien dès aujourd'hui.</p><button class="primary" onclick="startSelling()">Créer ma boutique</button></div></section>
+</main>
 
 <section id="authPage" class="hidden"><div class="formbox"><h2 id="authTitle">Créer un compte vendeur</h2><p class="muted" id="authIntro">Ouvre ton espace vendeur.</p><form id="authForm"><div class="field" id="nameField"><label for="fullName">Ton nom</label><input id="fullName" required autocomplete="name"></div><div class="field"><label for="email">Adresse e-mail</label><input id="email" type="email" required autocomplete="email"></div><div class="field"><label for="password">Mot de passe (6 caractères minimum)</label><input id="password" type="password" minlength="6" required autocomplete="current-password"></div><button class="primary" id="authSubmit" type="submit">Créer mon compte</button></form><p id="authSwitch" class="muted"></p><button class="secondary" onclick="goHome()">Retour à l'accueil</button><div class="notice">Version de test : ton compte et ta boutique sont enregistrés en ligne. Utilise un mot de passe que tu n'emploies pas ailleurs.</div></div></section>
 
@@ -25,4 +40,5 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
 <script src="app.js?v=1"></script>
 <script src="app2.js?v=2"></script>
+<script src="home.js?v=1"></script>
 </body></html>
