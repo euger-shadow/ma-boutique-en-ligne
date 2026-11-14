@@ -1,6 +1,9 @@
 'use strict';
 
-/* ---------- Produits ---------- */
+const MAX_PHOTOS=5;
+let pendingPhotos=[],previewUrls=[];
+
+/* ---------- Photos ---------- */
 function compressImage(file,maxSize,quality){
   return new Promise(function(resolve,reject){
     const reader=new FileReader();
@@ -22,22 +25,54 @@ function compressImage(file,maxSize,quality){
     reader.readAsDataURL(file);
   });
 }
+function productImages(p){
+  const list=Array.isArray(p.images)&&p.images.length?p.images:(p.image_url?[p.image_url]:[]);
+  return list.filter(function(u){return typeof u==='string'&&u.indexOf('https://')===0});
+}
+function storagePath(url){
+  const marker='/'+BUCKET+'/';
+  const i=String(url).indexOf(marker);
+  return i>-1?decodeURIComponent(String(url).slice(i+marker.length)):'';
+}
+function renderPhotoPreviews(){
+  $('photoPreviews').innerHTML=previewUrls.map(function(u,i){
+    return '<div class="pv"><img src="'+escapeHTML(u)+'" alt="Photo '+(i+1)+'"><button type="button" data-action="remove-photo" data-index="'+i+'" aria-label="Retirer cette photo">×</button></div>';
+  }).join('');
+}
 function resetPhoto(){
-  pendingPhoto=null;
-  if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=''}
-  const prev=$('photoPreview');prev.removeAttribute('src');prev.classList.add('hidden');
+  previewUrls.forEach(function(u){URL.revokeObjectURL(u)});
+  pendingPhotos=[];previewUrls=[];
+  $('photoPreviews').innerHTML='';
+}
+function removePhoto(index){
+  if(index<0||index>=pendingPhotos.length)return;
+  URL.revokeObjectURL(previewUrls[index]);
+  pendingPhotos.splice(index,1);previewUrls.splice(index,1);
+  renderPhotoPreviews();
 }
 $('productPhoto').addEventListener('change',async function(){
-  resetPhoto();
-  const file=this.files&&this.files[0];
-  if(!file)return;
-  if(!file.type||file.type.indexOf('image/')!==0){alert('Choisis un fichier image.');this.value='';return}
+  const input=this;
+  const files=Array.prototype.slice.call(input.files||[]);
+  input.value='';
+  if(!files.length)return;
+  const room=MAX_PHOTOS-pendingPhotos.length;
+  if(room<=0){alert('Maximum '+MAX_PHOTOS+' photos par produit.');return}
+  if(files.length>room)alert('Maximum '+MAX_PHOTOS+' photos par produit : seules '+room+' photo(s) sont ajoutée(s).');
+  const button=$('productSubmit');
+  setBusy(button,true);
   try{
-    pendingPhoto=await compressImage(file,800,0.72);
-    previewUrl=URL.createObjectURL(pendingPhoto);
-    const prev=$('photoPreview');prev.src=previewUrl;prev.classList.remove('hidden');
-  }catch(err){alert('Impossible de lire cette photo. Essaie une autre image.');this.value='';resetPhoto()}
+    for(const file of files.slice(0,room)){
+      if(!file.type||file.type.indexOf('image/')!==0){alert('Un fichier n’est pas une image : il est ignoré.');continue}
+      try{
+        const blob=await compressImage(file,800,0.72);
+        pendingPhotos.push(blob);
+        previewUrls.push(URL.createObjectURL(blob));
+      }catch(err){alert('Une photo n’a pas pu être lue : elle est ignorée.')}
+    }
+  }finally{setBusy(button,false);renderPhotoPreviews()}
 });
+
+/* ---------- Produits ---------- */
 $('productForm').addEventListener('submit',async function(e){
   e.preventDefault();
   if(!requireDb()||!currentUser)return;
@@ -46,60 +81,74 @@ $('productForm').addEventListener('submit',async function(e){
   const name=$('productName').value.trim(),price=Number($('productPrice').value);
   if(!name||!Number.isFinite(price)||price<0){alert('Vérifie le nom et le prix.');return}
   setBusy(button,true);
+  const uploaded=[];
   try{
-    let imageUrl='';
-    if(pendingPhoto){
-      const path=currentUser.id+'/'+Date.now()+'.jpg';
-      const up=await db.storage.from(BUCKET).upload(path,pendingPhoto,{contentType:'image/jpeg',cacheControl:'31536000'});
+    const urls=[];
+    for(let i=0;i<pendingPhotos.length;i++){
+      const path=currentUser.id+'/'+Date.now()+'-'+i+'.jpg';
+      const up=await db.storage.from(BUCKET).upload(path,pendingPhotos[i],{contentType:'image/jpeg',cacheControl:'31536000'});
       if(up.error)throw up.error;
-      imageUrl=db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      uploaded.push(path);
+      urls.push(db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl);
     }
     const res=await db.from('products').insert({
       store_id:myStore.id,name:name,price:price,
       description:$('productDescription').value.trim(),
       category:$('productCategory').value.trim(),
-      image_url:imageUrl
+      image_url:urls[0]||'',
+      images:urls
     }).select().single();
     if(res.error)throw res.error;
+    uploaded.length=0;
     myProducts.unshift(res.data);
     form.reset();resetPhoto();
     renderMyProducts();renderPreview();
     alert('Produit ajouté !');
-  }catch(err){alert(friendlyError(err))}
-  finally{setBusy(button,false)}
+  }catch(err){
+    if(uploaded.length){try{await db.storage.from(BUCKET).remove(uploaded)}catch(x){}}
+    alert(friendlyError(err));
+  }finally{setBusy(button,false)}
 });
 function renderMyProducts(){
   const list=$('productList');
   if(!myProducts.length){list.innerHTML='<div class="panel muted">Tu n’as pas encore ajouté de produit.</div>';return}
   const cur=myStore?myStore.currency:'FCFA';
   list.innerHTML=myProducts.map(function(p){
-    return '<article class="product"><img src="'+escapeHTML(safeImage(p.image_url,'https://placehold.co/150x150?text=Produit'))+'" alt="">'
-      +'<div><h3>'+escapeHTML(p.name)+'</h3><p>'+escapeHTML(formatPrice(p.price,cur))+'</p><p>'+escapeHTML(p.description||'')+'</p></div>'
+    const imgs=productImages(p);
+    const count=imgs.length>1?'<p>📷 '+imgs.length+' photos</p>':'';
+    return '<article class="product"><img src="'+escapeHTML(imgs[0]||'https://placehold.co/150x150?text=Produit')+'" alt="">'
+      +'<div><h3>'+escapeHTML(p.name)+'</h3><p>'+escapeHTML(formatPrice(p.price,cur))+'</p><p>'+escapeHTML(p.description||'')+'</p>'+count+'</div>'
       +'<div class="tools"><button class="danger small" data-action="delete-product" data-id="'+escapeHTML(p.id)+'">Supprimer</button></div></article>';
   }).join('');
 }
 async function deleteProduct(id){
   if(!confirm('Veux-tu vraiment supprimer ce produit ?'))return;
-  const p=myProducts.find(x=>String(x.id)===String(id));
+  const p=myProducts.find(function(x){return String(x.id)===String(id)});
   if(!p)return;
   try{
     const res=await db.from('products').delete().eq('id',p.id);
     if(res.error)throw res.error;
-    const marker='/'+BUCKET+'/';
-    if(p.image_url&&p.image_url.indexOf(marker)>-1){
-      const path=decodeURIComponent(p.image_url.slice(p.image_url.indexOf(marker)+marker.length));
-      await db.storage.from(BUCKET).remove([path]);
-    }
-    myProducts=myProducts.filter(x=>x.id!==p.id);
+    const paths=productImages(p).map(storagePath).filter(Boolean);
+    if(paths.length)await db.storage.from(BUCKET).remove(paths);
+    myProducts=myProducts.filter(function(x){return x.id!==p.id});
     renderMyProducts();renderPreview();
   }catch(err){alert(friendlyError(err))}
 }
 
 /* ---------- Vitrine et boutiques publiques ---------- */
+function photoBlock(p){
+  const imgs=productImages(p);
+  const alt=escapeHTML(p.name);
+  if(!imgs.length)return '<img src="https://placehold.co/500x350?text=Produit" alt="'+alt+'">';
+  if(imgs.length===1)return '<img src="'+escapeHTML(imgs[0])+'" alt="'+alt+'">';
+  return '<div class="gallery-wrap"><div class="gallery">'
+    +imgs.map(function(u){return '<img src="'+escapeHTML(u)+'" alt="'+alt+'" loading="lazy">'}).join('')
+    +'</div><span class="photo-count">📷 '+imgs.length+'</span></div>';
+}
 function productCards(items,store){
   if(!items.length)return '<p class="muted">Aucun produit pour le moment.</p>';
   return items.map(function(p){
-    return '<article class="panel public-product"><img src="'+escapeHTML(safeImage(p.image_url,'https://placehold.co/500x350?text=Produit'))+'" alt="'+escapeHTML(p.name)+'">'
+    return '<article class="panel public-product">'+photoBlock(p)
       +'<div class="inside"><h3>'+escapeHTML(p.name)+'</h3><p class="muted">'+escapeHTML(p.description||'')+'</p>'
       +'<p class="price">'+escapeHTML(formatPrice(p.price,store.currency))+'</p>'
       +'<button class="primary" data-action="order" data-id="'+escapeHTML(p.id)+'">Commander sur WhatsApp</button></div></article>';
@@ -167,7 +216,7 @@ async function openStore(slug){
 }
 function orderProduct(id){
   const s=ctx.store;if(!s)return;
-  const p=ctx.products.find(x=>String(x.id)===String(id));if(!p)return;
+  const p=ctx.products.find(function(x){return String(x.id)===String(id)});if(!p)return;
   const phone=String(s.whatsapp||'').replace(/[^0-9]/g,'');
   if(!phone){alert("Cette boutique n'a pas encore de numéro WhatsApp.");return}
   const msg='Bonjour, je suis intéressé(e) par '+p.name+' au prix de '+formatPrice(p.price,s.currency)+'. Est-il disponible ?';
@@ -181,6 +230,7 @@ document.addEventListener('click',function(e){
   else if(a==='order')orderProduct(el.dataset.id);
   else if(a==='delete-product')deleteProduct(el.dataset.id);
   else if(a==='share-viewed')shareStore(viewedStore);
+  else if(a==='remove-photo')removePhoto(Number(el.dataset.index));
 });
 
 /* ---------- Démarrage ---------- */
